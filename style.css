@@ -1,0 +1,73 @@
+/* CSS reset adapted from https://www.joshwcomeau.com/css/custom-css-reset/ */
+
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* BRING BACK VERTICAL SCROLLBAR!! */
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img, picture, video, canvas, svg {
+    display: block;
+    max-width: 100%;
+  }
+  
+  input, button, textarea, select {
+    font: inherit;
+  }
+  
+  p {
+    line-height: 1.5;
+  }
+
+  p, h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+  }
+
+  *::-webkit-scrollbar:horizontal {
+    display: none; 
+ }
+
+/* Headers */
+
+h1 {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    font-size: 5rem;
+    position: absolute;
+    left: 1rem;
+    font-weight: normal;
+}
+
+.carosel {
+    display: flex;
+    gap: 1rem;
+    overflow: visible;
+    flex-wrap:nowrap;
+    filter: blur(10px);
+    transition: filter .1s;
+    animation: move 30s infinite linear;
+    animation-play-state: paused;
+} 
+
+.carosel:hover {
+    
+    filter: blur(0);
+    transition: filter .2s;
+    animation-play-state: running;
+}
+
+
+
+@keyframes move {
+    to {
+        transform: translateX(-103%);
+    }
+}
