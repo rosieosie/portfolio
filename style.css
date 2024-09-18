@@ -7,8 +7,6 @@
   * {
     margin: 0;
     padding: 0;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* BRING BACK VERTICAL SCROLLBAR!! */
   }
 
   body {
@@ -32,9 +30,7 @@
     overflow-wrap: break-word;
   }
 
-  *::-webkit-scrollbar:horizontal {
-    display: none; 
- }
+
 
 /* Headers */
 
@@ -46,18 +42,28 @@ h1 {
     font-weight: normal;
 }
 
-.carosel {
+/* Home screen images */
+
+.spinner {
+    overflow: hidden;
+    width:100%;
+}
+
+.spinner-inner {
+    --distance: 338px;
     display: flex;
     gap: 1rem;
+    padding-block: 2rem;
     overflow: visible;
-    flex-wrap:nowrap;
+    flex-wrap: nowrap;
     filter: blur(10px);
     transition: filter .1s;
-    animation: move 30s infinite linear;
+    animation: move 10s linear infinite;
     animation-play-state: paused;
+    position: relative;
 } 
 
-.carosel:hover {
+.spinner-inner:hover {
     
     filter: blur(0);
     transition: filter .2s;
@@ -68,6 +74,6 @@ h1 {
 
 @keyframes move {
     to {
-        transform: translateX(-103%);
+        transform: translate(calc(-100% - 1rem - var(--distance)));
     }
 }
