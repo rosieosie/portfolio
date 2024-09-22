@@ -7,6 +7,7 @@
   * {
     margin: 0;
     padding: 0;
+   
   }
 
   body {
@@ -28,21 +29,75 @@
 
   p, h1, h2, h3, h4, h5, h6 {
     overflow-wrap: break-word;
-  }
-
-
-
-/* Headers */
-
-h1 {
     font-family: 'Helvetica', 'Arial', sans-serif;
-    font-size: 5rem;
-    position: absolute;
-    left: 1rem;
     font-weight: normal;
+    color: black;
+    
+  }
+   a {
+    text-decoration: none;
+   }
+
+
+/* Home page WORK SECTION */
+
+#work-header {
+    display: flex;
+    justify-content: space-around;
 }
 
-/* Home screen images */
+h2 {
+    color: #D00101;
+    display: flex;
+    justify-content: center;
+    font-size: 5rem;
+    letter-spacing: -0.2rem;
+}
+
+h3 {
+    font-size: 2.5rem;
+    letter-spacing: -0.16rem;
+}
+
+h4 {
+    font-size: 1.25rem;
+    letter-spacing: -0.05rem;
+}
+
+#arrow {
+    width: 70px;
+}
+
+.project-box {
+    visibility: hidden;
+    max-height: 0;
+    opacity: 0;
+    display: flex;
+    margin: 0 auto;
+    transition: all 0.4s ease;
+    justify-content: space-between;
+    align-items: center;
+}
+
+a:hover .project-box {
+    visibility: visible;
+    opacity: 1;
+    max-height: 300px;
+}
+
+.project-box#pb-1 {
+    width: var(--width-1);
+}
+
+.project-box#pb-2 {
+    width: var(--width-2);
+}
+
+.project-box#pb-3 {
+    width: var(--width-3);
+}
+
+/* Home page images */
 
 .spinner {
     overflow: hidden;
@@ -56,14 +111,20 @@ h1 {
     padding-block: 2rem;
     overflow: visible;
     flex-wrap: nowrap;
-    filter: blur(10px);
+    filter: blur(15px);
     transition: filter .1s;
-    animation: move 10s linear infinite;
+    animation: move 80s linear infinite;
     animation-play-state: paused;
     position: relative;
 } 
 
-.spinner-inner:hover {
+.spinner-inner.reverse {
+    animation: move-rev 80s linear infinite;
+    animation-play-state: paused;
+    border: 1px solid greenyellow;
+}
+
+a:hover .spinner-inner{
     
     filter: blur(0);
     transition: filter .2s;
@@ -75,5 +136,11 @@ h1 {
 @keyframes move {
     to {
         transform: translate(calc(-100% - 1rem - var(--distance)));
+    }
+}
+
+@keyframes move-rev {
+    to {
+        transform: translate(calc(100% + 1rem + var(--distance))); 
     }
 }
