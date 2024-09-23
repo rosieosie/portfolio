@@ -106,3 +106,170 @@ function reduplicateImages() {
       });
     reduplicated = true;
 };
+
+// Soft body?!! -------------------------------------------------------------------------------------------------
+let canvas;
+let ctx;
+let particle;
+
+document.addEventListener('DOMContentLoaded', function(){ 
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth; 
+    canvas.height = window.innerHeight * 0.8;
+    particle = new Particle(100, 100);
+    particle.update()
+    particle.checkEdges();
+    particle.show();
+    // create array of particles in starting positions
+})
+
+window.requestAnimationFrame(draw);
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let gravity = new Vector(0, 0.3)
+    particle.applyForce(gravity);
+    particle.checkEdges();
+    particle.update();
+    particle.show();
+    window.requestAnimationFrame(draw);
+}
+
+class Particle {
+    constructor(x, y){
+        this.position = new Vector(x, y);
+        this.velocity = new Vector (0, 0);
+        this.acceleration = new Vector (0, 1);
+        this.mass=1;
+        this.cWidth = canvas.width;
+        this.cHeight = canvas.height;
+    }
+
+    applyForce(force) {
+        let f = force.copy().divide(this.mass);
+        this.acceleration.add(f);
+    }
+
+    update() {
+        this.velocity.add(this.acceleration);
+        this.position.add(this.velocity);
+        this.acceleration.multiply(0);
+    }
+
+    checkEdges() {
+        let bounce = -0.5
+        if (this.position.x > this.cWidth) {
+            this.position.x = this.cWidth;
+            this.velocity.x *= bounce;
+        } else if (this.position.x < 0) {
+            this.position.x = 0;
+            this.velocity.x *= bounce;
+        }
+        if (this.position.y > this.cHeight) {
+            this.position.y = this.cHeight;
+            this.velocity.y *= bounce;
+        } else if (this.position.y < 0) {
+            this.position.y = 0;
+            this.velocity.y *= bounce;
+        }
+    }
+
+    show() {
+        ctx.beginPath();
+        ctx.ellipse(this.position.x, this.position.y, 50, 50, Math.PI / 3, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+}
+
+class Vector {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    // Add another vector to this vector
+    add(v) {
+        this.x += v.x;
+        this.y += v.y;
+        return this;
+    }
+
+    // Subtract another vector from this vector
+    subtract(v) {
+        this.x -= v.x;
+        this.y -= v.y;
+        return this;
+    }
+
+    // Multiply this vector by a scalar
+    multiply(scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
+        return this;
+    }
+
+    // Divide this vector by a scalar
+    divide(scalar) {
+        if (scalar !== 0) {
+            this.x /= scalar;
+            this.y /= scalar;
+        }
+        return this;
+    }
+
+    // Get the magnitude (length) of the vector
+    magnitude() {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    // Normalize the vector to a unit vector
+    normalize() {
+        let mag = this.magnitude();
+        if (mag > 0) {
+            this.divide(mag);
+        }
+        return this;
+    }
+
+    // Get the distance between two vectors
+    distance(v) {
+        let dx = this.x - v.x;
+        let dy = this.y - v.y;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    // Set the vector to have a specific magnitude
+    setMagnitude(mag) {
+        this.normalize().multiply(mag);
+        return this;
+    }
+
+    // Limit the magnitude of the vector
+    limit(max) {
+        if (this.magnitude() > max) {
+            this.setMagnitude(max);
+        }
+        return this;
+    }
+
+    // Create a copy of this vector
+    copy() {
+        return new Vector(this.x, this.y);
+    }
+    
+    // Static method to create a vector from two points (useful in physics)
+    static fromPoints(p1, p2) {
+        return new Vector(p2.x - p1.x, p2.y - p1.y);
+    }
+
+    // // Static division
+    // static statDiv(v, s) {
+    //     let v2 = new Vector(v.x / s, v.y / s);
+    //     return v2;
+    // }
+}
+
+// particle class - movement, edges
+// string class
+// body class 
