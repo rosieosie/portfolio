@@ -110,41 +110,133 @@ function reduplicateImages() {
 // Soft body?!! -------------------------------------------------------------------------------------------------
 let canvas;
 let ctx;
-let particle;
+let particles = [];
+let springs = [];
+let noOfParticles = 18;
 
 document.addEventListener('DOMContentLoaded', function(){ 
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth; 
     canvas.height = window.innerHeight * 0.8;
-    particle = new Particle(100, 100, 0, 0);
-    particle.update()
-    particle.checkEdges();
-    particle.show();
-    other = new Particle(200, 200, 0, 0);
-    other.update()
-    other.checkEdges();
-    other.show();
-    window.requestAnimationFrame(draw);
-    // create array of particles in starting positions
-})
+    let index = 0;
 
+    // positions
+    const canvasWidth = canvas.width;
+    const canvasHeight = canvas.height;
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+    
+    let xValues = [];
+    let yValues = [];
+
+    for (let i = 0; i < noOfParticles; i++) {
+        // Angle in radians (distributes particles around the center)
+        let angle = (i / noOfParticles) * Math.PI * 2;
+        
+        // Radius for x (horizontal) and y (vertical), scaling x more for a horizontal oval
+        let horizontalRadius = canvas.width * 0.3;  // Larger horizontal radius for a stretched oval
+        let verticalRadius = canvas.height * 0.3;    // Smaller vertical radius for oval
+        
+        // Optional: Add randomness to the radius for a spiky effect
+        let radius = 1 + Math.random() * 0.5; // Adjust for more/less spikes
+    
+        // Convert polar coordinates to cartesian
+        let x = centerX + (horizontalRadius * radius) * Math.cos(angle);  // Stretch horizontally
+        let y = centerY + (verticalRadius * radius) * Math.sin(angle);    // Less stretch vertically
+    
+        // Store the calculated values
+        xValues.push(x);
+        yValues.push(y);
+    }
+
+    // create array of particles in starting positions
+    for(let i = 0; i < noOfParticles; i++){
+        const x = xValues[index];
+        const y = yValues[index];
+        particles.push(new Particle(x, y, Math.random()*0.01, Math.random()*0.01));
+        particles[i].show();
+        index++;
+    }
+
+    // create array of springs
+    for(let i = 0; i < noOfParticles; i++){
+        if (i == noOfParticles - 1 ){
+            springs.push(new Spring(particles[i], particles[0], particles[i].position.copy().subtract(particles[0].position).magnitude(), 0.01))
+        } else {
+            springs.push(new Spring(particles[i], particles[i+1], particles[i+1].position.copy().subtract(particles[i].position).magnitude(), 0.01))
+            console.log("edge");
+        }
+
+        if (i + 2 < noOfParticles) {
+            springs.push(new Spring(particles[i], particles[i + 2], particles[i].position.copy().subtract(particles[i + 2].position).magnitude(), 0.1));
+        }
+        if (i + 6 < noOfParticles) {
+            springs.push(new Spring(particles[i], particles[i + 6], particles[i].position.copy().subtract(particles[i + 6].position).magnitude(), 0.1)); 
+        }
+
+        if (i + 10 < noOfParticles) {
+            springs.push(new Spring(particles[i], particles[i + 10], particles[i].position.copy().subtract(particles[i + 10].position).magnitude(), 0.1)); 
+        }
+        let randomA = Math.floor(Math.random()*noOfParticles)
+        let randomB = Math.floor(Math.random()*noOfParticles)
+        springs.push(new Spring(particles[i], particles[randomA], particles[i].position.copy().subtract(particles[randomA].position).magnitude(), 0.1));
+        springs.push(new Spring(particles[i], particles[randomB], particles[i].position.copy().subtract(particles[randomB].position).magnitude(), 0.1));
+       
+
+        // for (let n = 0; n < noOfParticles / 100; n++){
+        //     if ( i !== n) {
+        //         springs.push(new Spring(particles[i], particles[n], 800, 0.005))
+        //         springs[n].show();
+        //         console.log("connector");
+        //     }
+         //   }
+        springs[i].show();
+        console.log("looped")
+    }
+
+
+    window.requestAnimationFrame(draw);
+})
 
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    let gravity = new Vector(0, 0.3)
-    particle.applyForce(gravity);
-    particle.checkEdges();
-    particle.update();
-    particle.show();
-    other.applyForce(gravity);
-    other.checkEdges();
-    other.update();
-    other.show();
-    let spring = new Spring(particle, other, 100, 0.01)
-    spring.update();
-    spring.show();
+
+    for(let i = 0; i < particles.length; i++){
+        // let gravity = new Vector(0, 0.3)
+        // particles[i].applyForce(gravity);
+        particles[i].checkEdges();
+        particles[i].update();
+        // particles[i].show();
+        // springs[i].show();
+            // springs.forEach((spring) => {
+            //     spring.show();
+            // })
+        springs[i].update();
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(particles[0].position.x, particles[0].position.y);
+    for(let i = 0; i < particles.length - 1; i++){
+        
+        console.log(particles[i].position.x, particles[i].position.y)
+        ctx.lineTo(particles[i + 1].position.x, particles[i + 1].position.y);
+    }
+    ctx.fillStyle = "#9A9A9A";
+    ctx.fill();
+    // let gravity = new Vector(0, 0.3)
+    // particle.applyForce(gravity);
+    // particle.checkEdges();
+    // particle.update();
+    // particle.show();
+    // other.applyForce(gravity);
+    // other.checkEdges();
+    // other.update();
+    // other.show();
+    // let spring = new Spring(particle, other, 100, 0.01)
+    // spring.update();
+    // spring.show();
     window.requestAnimationFrame(draw);
 }
 
@@ -155,7 +247,7 @@ class Spring {
         this.particleB = particleB;
         this.restLength = restLength;
         this.stiffness = stiffness;
-        this.damping = 0.005
+        this.damping = 0.1
     }
     update() {
         let d = this.particleA.position.copy().subtract(this.particleB.position);
@@ -203,7 +295,7 @@ class Particle {
     }
 
     checkEdges() {
-        let bounce = -0.98
+        let bounce = -0.7
         if (this.position.x > this.cWidth) {
             this.position.x = this.cWidth;
             this.velocity.x *= bounce;
