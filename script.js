@@ -117,14 +117,19 @@ document.addEventListener('DOMContentLoaded', function(){
     ctx = canvas.getContext("2d");
     canvas.width = window.innerWidth; 
     canvas.height = window.innerHeight * 0.8;
-    particle = new Particle(100, 100);
+    particle = new Particle(100, 100, 0, 0);
     particle.update()
     particle.checkEdges();
     particle.show();
+    other = new Particle(200, 200, 0, 0);
+    other.update()
+    other.checkEdges();
+    other.show();
+    window.requestAnimationFrame(draw);
     // create array of particles in starting positions
 })
 
-window.requestAnimationFrame(draw);
+
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -133,14 +138,54 @@ function draw() {
     particle.checkEdges();
     particle.update();
     particle.show();
+    other.applyForce(gravity);
+    other.checkEdges();
+    other.update();
+    other.show();
+    let spring = new Spring(particle, other, 100, 0.01)
+    spring.update();
+    spring.show();
     window.requestAnimationFrame(draw);
 }
 
+// spring class adapted from https://www.gorillasun.de/blog/spring-physics-and-connecting-particles-with-springs/
+class Spring {
+    constructor(particleA, particleB, restLength, stiffness) {
+        this.particleA = particleA;
+        this.particleB = particleB;
+        this.restLength = restLength;
+        this.stiffness = stiffness;
+        this.damping = 0.005
+    }
+    update() {
+        let d = this.particleA.position.copy().subtract(this.particleB.position);
+        let dst = d.magnitude();
+        let deformAmount = dst - this.restLength;
+        let restorativeForce = this.stiffness * deformAmount;
+        let dir = d.copy().normalize();
+        let f = dir.copy().multiply(restorativeForce);
+        this.particleA.applyForce(f.copy().multiply(-1));
+        this.particleB.applyForce(f);
+        // add damping so that the springing slows to a stop
+        let vel = this.particleA.velocity.copy().subtract(this.particleB.velocity);
+        let dampingForce = vel.copy().multiply(this.damping);
+        this.particleA.applyForce(dampingForce.copy().multiply(-1));
+        this.particleB.applyForce(dampingForce);
+    }
+    
+    show() {
+        ctx.beginPath();
+        ctx.moveTo(this.particleA.position.x, this.particleA.position.y);
+        ctx.lineTo(this.particleB.position.x, this.particleB.position.y);
+        ctx.stroke();
+    }
+}
+
 class Particle {
-    constructor(x, y){
+    constructor(x, y, ax, ay){
         this.position = new Vector(x, y);
         this.velocity = new Vector (0, 0);
-        this.acceleration = new Vector (0, 1);
+        this.acceleration = new Vector (ax, ay);
         this.mass=1;
         this.cWidth = canvas.width;
         this.cHeight = canvas.height;
@@ -158,7 +203,7 @@ class Particle {
     }
 
     checkEdges() {
-        let bounce = -0.5
+        let bounce = -0.98
         if (this.position.x > this.cWidth) {
             this.position.x = this.cWidth;
             this.velocity.x *= bounce;
@@ -262,12 +307,6 @@ class Vector {
     static fromPoints(p1, p2) {
         return new Vector(p2.x - p1.x, p2.y - p1.y);
     }
-
-    // // Static division
-    // static statDiv(v, s) {
-    //     let v2 = new Vector(v.x / s, v.y / s);
-    //     return v2;
-    // }
 }
 
 // particle class - movement, edges
