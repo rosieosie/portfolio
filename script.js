@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function(){
     for(let i = 0; i < noOfParticles; i++){
         const x = xValues[index];
         const y = yValues[index];
-        particles.push(new Particle(x, y, Math.random()*0.01, Math.random()*0.01));
+        particles.push(new Particle(x, y, 0, 0));
         particles[i].show();
         index++;
     }
@@ -162,37 +162,25 @@ document.addEventListener('DOMContentLoaded', function(){
     // create array of springs
     for(let i = 0; i < noOfParticles; i++){
         if (i == noOfParticles - 1 ){
-            springs.push(new Spring(particles[i], particles[0], particles[i].position.copy().subtract(particles[0].position).magnitude(), 0.01))
+            springs.push(new Spring(particles[i], particles[0], particles[i].position.copy().subtract(particles[0].position).magnitude(), 0.3))
         } else {
-            springs.push(new Spring(particles[i], particles[i+1], particles[i+1].position.copy().subtract(particles[i].position).magnitude(), 0.01))
-            console.log("edge");
+            springs.push(new Spring(particles[i], particles[i+1], particles[i+1].position.copy().subtract(particles[i].position).magnitude(), 0.3))
         }
 
         if (i + 2 < noOfParticles) {
-            springs.push(new Spring(particles[i], particles[i + 2], particles[i].position.copy().subtract(particles[i + 2].position).magnitude(), 0.1));
+            springs.push(new Spring(particles[i], particles[i + 2], particles[i].position.copy().subtract(particles[i + 2].position).magnitude(), 0.25));
         }
         if (i + 6 < noOfParticles) {
-            springs.push(new Spring(particles[i], particles[i + 6], particles[i].position.copy().subtract(particles[i + 6].position).magnitude(), 0.1)); 
+            springs.push(new Spring(particles[i], particles[i + 6], particles[i].position.copy().subtract(particles[i + 6].position).magnitude(), 0.22)); 
         }
 
         if (i + 10 < noOfParticles) {
-            springs.push(new Spring(particles[i], particles[i + 10], particles[i].position.copy().subtract(particles[i + 10].position).magnitude(), 0.1)); 
+            springs.push(new Spring(particles[i], particles[i + 10], particles[i].position.copy().subtract(particles[i + 10].position).magnitude(), 0.2)); 
         }
         let randomA = Math.floor(Math.random()*noOfParticles)
         let randomB = Math.floor(Math.random()*noOfParticles)
-        springs.push(new Spring(particles[i], particles[randomA], particles[i].position.copy().subtract(particles[randomA].position).magnitude(), 0.1));
-        springs.push(new Spring(particles[i], particles[randomB], particles[i].position.copy().subtract(particles[randomB].position).magnitude(), 0.1));
-       
-
-        // for (let n = 0; n < noOfParticles / 100; n++){
-        //     if ( i !== n) {
-        //         springs.push(new Spring(particles[i], particles[n], 800, 0.005))
-        //         springs[n].show();
-        //         console.log("connector");
-        //     }
-         //   }
-        springs[i].show();
-        console.log("looped")
+        springs.push(new Spring(particles[i], particles[randomA], particles[i].position.copy().subtract(particles[randomA].position).magnitude(), 0.25));
+        springs.push(new Spring(particles[i], particles[randomB], particles[i].position.copy().subtract(particles[randomB].position).magnitude(), 0.25));
     }
 
 
@@ -208,35 +196,25 @@ function draw() {
         // particles[i].applyForce(gravity);
         particles[i].checkEdges();
         particles[i].update();
-        // particles[i].show();
-        // springs[i].show();
-            // springs.forEach((spring) => {
-            //     spring.show();
-            // })
+        particles[i].show();
+        // let jitter = new Vector(
+        //     (Math.random() * Math.random() * 0.001) * (Math.random() < 0.5 ? 1 : -1),
+        //     (Math.random() * Math.random() * 0.001) * (Math.random() < 0.5 ? 1 : -1)
+        // );
+        // particles[i].applyForce(jitter);
         springs[i].update();
     }
-
     ctx.beginPath();
     ctx.moveTo(particles[0].position.x, particles[0].position.y);
     for(let i = 0; i < particles.length - 1; i++){
-        
-        console.log(particles[i].position.x, particles[i].position.y)
         ctx.lineTo(particles[i + 1].position.x, particles[i + 1].position.y);
     }
     ctx.fillStyle = "#9A9A9A";
     ctx.fill();
-    // let gravity = new Vector(0, 0.3)
-    // particle.applyForce(gravity);
-    // particle.checkEdges();
-    // particle.update();
-    // particle.show();
-    // other.applyForce(gravity);
-    // other.checkEdges();
-    // other.update();
-    // other.show();
-    // let spring = new Spring(particle, other, 100, 0.01)
-    // spring.update();
-    // spring.show();
+    // canvas.addEventListener("mousemove", (e) => {
+    //     const isPointInPath = ctx.isPointInPath(blob, e.offsetX, e.offsetY);
+    //     if (isPointInPath) console.log("yes");
+    // });
     window.requestAnimationFrame(draw);
 }
 
